@@ -105,6 +105,7 @@ import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.jank.InteractionJankMonitor;
 import com.android.internal.policy.ScreenDecorationsUtils;
+import com.android.internal.policy.SpringInterpolator;
 import com.android.internal.policy.TransitionAnimation;
 import com.android.internal.protolog.ProtoLog;
 import com.android.window.flags.Flags;
@@ -128,8 +129,8 @@ import java.util.function.Consumer;
 
 /** The default handler that handles anything not already handled. */
 public class DefaultTransitionHandler implements Transitions.TransitionHandler {
-    private static final int SIZE_CHANGE_ANIMATION_DURATION = 400;
-    private static final int MERGE_ANIMATION_DURATION = 400;
+    private static final int SIZE_CHANGE_ANIMATION_DURATION = 340;
+    private static final int MERGE_ANIMATION_DURATION = 340;
 
     private final TransactionPool mTransactionPool;
     private final DisplayController mDisplayController;
@@ -868,7 +869,7 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
                     mergingWindowState,
                     incomingChange.getEndAbsBounds(),
                     MERGE_ANIMATION_DURATION,
-                    Interpolators.EMPHASIZED);
+                    new SpringInterpolator(0.9f, 15f));
 
             // We need to modify the startT so that the window remains visually "frozen" in its
             // correct starting position during the tiny gap between the merge request and
@@ -976,7 +977,7 @@ public class DefaultTransitionHandler implements Transitions.TransitionHandler {
         final ValueAnimator va = sca.buildAnimator(change.getLeash(), change.getSnapshot(),
                 (animation) -> { /* cleanups handled in sca.buildAnimator internally */ });
         va.setDuration(SIZE_CHANGE_ANIMATION_DURATION);
-        va.setInterpolator(Interpolators.EMPHASIZED);
+        va.setInterpolator(new SpringInterpolator(0.88f, 15f));
         final WindowAnimation winAnim = new WindowAnimation(change, 0 /* cornerRadius */,
                 sca.getAnimation(), va);
         winAnim.addFinishCallback(finishCallback, mainExecutor);
